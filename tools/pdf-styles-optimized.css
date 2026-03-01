@@ -1,0 +1,608 @@
+/**
+ * PDF 打印样式优化 CSS
+ * 针对中文技术文档的专业排版方案
+ * 版本: 1.0
+ * 更新: 2024-02-28
+ */
+
+/* ==========================================================================
+   一、字体设置（解决乱码问题）
+   ========================================================================== */
+
+/* 加载思源宋体 - 确保中文正确显示 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+:root {
+    /* 正文字体栈 - 从最佳到回退 */
+    --font-serif-cn: "Noto Serif SC", "Source Han Serif SC", "SimSun", "STSong", "NSimSun", serif;
+    --font-sans-cn: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "SimHei", "STHeiti", sans-serif;
+    --font-mono-cn: "SF Mono", "Cascadia Code", "Fira Code", "Source Code Pro", monospace;
+    
+    /* 系统安全字体 - 用于@page规则 */
+    --font-system-cn: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "SimHei", sans-serif;
+    
+    /* 颜色变量 */
+    --color-primary: #2c3e50;
+    --color-secondary: #34495e;
+    --color-accent: #3498db;
+    --color-text: #333;
+    --color-text-light: #666;
+    --color-border: #ddd;
+}
+
+/* 全局字体设置 */
+body {
+    font-family: var(--font-serif-cn);
+    font-size: 11pt;
+    line-height: 1.8;
+    color: var(--color-text);
+    text-align: justify;
+    text-align-last: left;
+    hanging-punctuation: allow-end;
+}
+
+/* ==========================================================================
+   二、@page 页面设置（解决标题格式和页眉页脚问题）
+   ========================================================================== */
+
+@page {
+    size: A4;
+    margin: 2.5cm 2cm;
+    
+    /* 页眉 - 使用系统安全字体 */
+    @top-center {
+        content: string(doctitle);
+        font-family: var(--font-system-cn);
+        font-size: 9pt;
+        color: var(--color-text-light);
+        padding: 10px 0;
+    }
+    
+    /* 页脚 - 页码显示 */
+    @bottom-center {
+        content: "第 " counter(page) " 页 / 共 " counter(pages) " 页";
+        font-family: var(--font-system-cn);
+        font-size: 9pt;
+        color: var(--color-text-light);
+        padding: 10px 0;
+    }
+}
+
+/* 封面页 - 无页眉页脚，无边距 */
+@page :first {
+    margin: 0;
+    @top-center { content: none; }
+    @bottom-center { content: none; }
+}
+
+/* 目录页 - 无页眉，保留页脚 */
+@page toc {
+    @top-center { content: none; }
+    @bottom-center {
+        content: counter(page, lower-roman);
+        font-family: var(--font-system-cn);
+    }
+}
+
+/* ==========================================================================
+   三、标题层级样式
+   ========================================================================== */
+
+h1 {
+    font-family: var(--font-serif-cn);
+    font-size: 22pt;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--color-accent);
+    string-set: doctitle content();
+    page-break-before: always;
+    page-break-after: avoid;
+    orphans: 3;
+    widows: 3;
+}
+
+/* 第一章前面不加分页 */
+h1:first-of-type {
+    page-break-before: auto;
+}
+
+h2 {
+    font-family: var(--font-serif-cn);
+    font-size: 16pt;
+    font-weight: 600;
+    color: var(--color-secondary);
+    margin-top: 24pt;
+    margin-bottom: 12pt;
+    padding-left: 12px;
+    border-left: 4px solid var(--color-accent);
+    page-break-after: avoid;
+    page-break-inside: avoid;
+}
+
+h3 {
+    font-family: var(--font-sans-cn);
+    font-size: 13pt;
+    font-weight: 600;
+    color: #445566;
+    margin-top: 18pt;
+    margin-bottom: 10pt;
+    page-break-after: avoid;
+}
+
+h4 {
+    font-family: var(--font-sans-cn);
+    font-size: 11pt;
+    font-weight: 600;
+    color: #556677;
+    margin-top: 14pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
+}
+
+h5, h6 {
+    font-family: var(--font-sans-cn);
+    font-size: 11pt;
+    font-weight: 600;
+    margin-top: 12pt;
+    margin-bottom: 6pt;
+}
+
+/* ==========================================================================
+   四、目录样式
+   ========================================================================== */
+
+.toc-page {
+    page: toc;
+    page-break-after: always;
+}
+
+.toc-title {
+    font-family: var(--font-sans-cn);
+    font-size: 24pt;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--color-primary);
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc li {
+    margin: 6px 0;
+    display: flex;
+    align-items: baseline;
+    font-family: var(--font-sans-cn);
+    page-break-inside: avoid;
+}
+
+.toc a {
+    color: var(--color-text);
+    text-decoration: none;
+    display: flex;
+    width: 100%;
+    align-items: baseline;
+}
+
+.toc a::after {
+    content: leader('.') target-counter(attr(href url), page);
+    flex: 1;
+    text-align: right;
+    font-family: var(--font-mono-cn);
+    font-size: 10pt;
+    color: var(--color-text-light);
+}
+
+.toc-chapter {
+    font-weight: 600;
+    font-size: 12pt;
+    margin-top: 12px;
+    color: var(--color-primary);
+}
+
+.toc-section {
+    padding-left: 1.5em;
+    font-size: 11pt;
+    color: var(--color-secondary);
+}
+
+.toc-subsection {
+    padding-left: 3em;
+    font-size: 10pt;
+    color: #555;
+}
+
+/* ==========================================================================
+   五、段落首行缩进（解决段落无缩进问题）
+   ========================================================================== */
+
+p {
+    font-family: var(--font-serif-cn);
+    font-size: 11pt;
+    line-height: 1.8;
+    text-align: justify;
+    text-align-last: left;
+    text-indent: 2em;
+    margin: 0 0 0.8em 0;
+    orphans: 2;
+    widows: 2;
+}
+
+/* 首段也缩进 */
+p:first-of-type {
+    text-indent: 2em;
+}
+
+/* 无需缩进的段落 */
+p.no-indent,
+.highlight-box p,
+blockquote p,
+li p,
+table p,
+figcaption,
+.cover-content p,
+.toc-page p {
+    text-indent: 0;
+}
+
+/* ==========================================================================
+   六、图片分页控制（解决图片跨页问题）
+   ========================================================================== */
+
+figure {
+    margin: 20px 0;
+    text-align: center;
+    page-break-inside: avoid !important;
+    page-break-before: auto;
+    page-break-after: auto;
+}
+
+figure img {
+    max-width: 100%;
+    max-height: 35vh;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+figcaption {
+    font-family: var(--font-sans-cn);
+    font-size: 10pt;
+    color: var(--color-text-light);
+    margin-top: 10px;
+    font-style: normal;
+    text-align: center;
+}
+
+figcaption::before {
+    content: attr(data-label) "  ";
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* 大图特殊处理 */
+figure.large,
+figure.large-figure {
+    page-break-before: always;
+}
+
+figure.large img,
+figure.large-figure img {
+    max-height: 70vh;
+}
+
+/* Mermaid图表 */
+.mermaid-container {
+    text-align: center;
+    margin: 20px 0;
+    page-break-inside: avoid;
+}
+
+.mermaid svg {
+    max-width: 100%;
+    max-height: 35vh;
+    height: auto;
+}
+
+.mermaid-png {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 35vh;
+}
+
+/* ==========================================================================
+   七、代码块样式
+   ========================================================================== */
+
+pre {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 12px 15px;
+    margin: 15px 0;
+    font-family: var(--font-mono-cn);
+    font-size: 9pt;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+    page-break-inside: avoid;
+    max-width: 100%;
+    max-height: 400px;
+}
+
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+code {
+    font-family: var(--font-mono-cn);
+    font-size: 0.9em;
+    background: #f1f3f5;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #c7254e;
+    word-break: break-all;
+}
+
+/* ==========================================================================
+   八、表格样式
+   ========================================================================== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 10pt;
+    page-break-inside: auto;
+}
+
+thead {
+    display: table-header-group;
+}
+
+th, td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+th {
+    background: #f8f9fa;
+    font-weight: 600;
+    border-top: 2px solid #333;
+    border-bottom: 1px solid #333;
+}
+
+tbody tr:last-child {
+    border-bottom: 2px solid #333;
+}
+
+tr {
+    page-break-inside: avoid;
+}
+
+caption {
+    font-family: var(--font-sans-cn);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: center;
+    font-size: 10pt;
+}
+
+caption::before {
+    content: attr(data-label) "  ";
+}
+
+/* ==========================================================================
+   九、其他元素样式
+   ========================================================================== */
+
+/* 引用块 */
+blockquote {
+    border-left: 4px solid var(--color-accent);
+    margin: 15px 0;
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #555;
+    font-style: italic;
+    page-break-inside: avoid;
+}
+
+/* 强调框 */
+.highlight-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 0 5px 5px 0;
+    page-break-inside: avoid;
+}
+
+.highlight-box p {
+    text-indent: 0;
+    margin-bottom: 0.5em;
+}
+
+.highlight-box p:last-child {
+    margin-bottom: 0;
+}
+
+/* 列表 */
+ul, ol {
+    margin: 12px 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 6px 0;
+    font-family: var(--font-serif-cn);
+}
+
+/* 链接 */
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+/* 公式 */
+.katex-display {
+    overflow-x: auto;
+    margin: 15px 0;
+}
+
+/* 分页控制 */
+.page-break {
+    page-break-after: always;
+}
+
+/* 防止溢出 */
+pre, table, figure, img, svg, blockquote {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   十、打印媒体查询优化
+   ========================================================================== */
+
+@media print {
+    /* 确保所有样式在打印时生效 */
+    body {
+        font-size: 11pt !important;
+        line-height: 1.8 !important;
+    }
+    
+    p {
+        text-indent: 2em !important;
+        font-size: 11pt !important;
+    }
+    
+    /* 保留背景色 */
+    pre, th, .highlight-box, blockquote {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* 链接显示URL */
+    a[href]:not([href^="#"])::after {
+        content: " (" attr(href) ")";
+        font-size: 0.85em;
+        color: var(--color-text-light);
+        word-break: break-all;
+    }
+    
+    a[href^="#"]::after {
+        content: none;
+    }
+    
+    /* 确保标题不断页 */
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid !important;
+    }
+    
+    /* 图片不跨页 */
+    figure {
+        page-break-inside: avoid !important;
+    }
+    
+    /* 表格行不断页 */
+    tr {
+        page-break-inside: avoid !important;
+    }
+}
+
+/* ==========================================================================
+   十一、字体回退样式（当Web字体加载失败时使用）
+   ========================================================================== */
+
+.font-fallback body {
+    font-family: "SimSun", "STSong", "Microsoft YaHei", serif;
+}
+
+.font-fallback h1, .font-fallback h2 {
+    font-family: "SimHei", "Microsoft YaHei", "STHeiti", sans-serif;
+}
+
+.font-fallback h3, .font-fallback h4, .font-fallback h5, .font-fallback h6 {
+    font-family: "Microsoft YaHei", "SimHei", sans-serif;
+}
+
+.font-fallback figcaption, .font-fallback .toc-title, .font-fallback caption {
+    font-family: "Microsoft YaHei", "SimHei", sans-serif;
+}
+
+/* ==========================================================================
+   十二、封面样式
+   ========================================================================== */
+
+.cover {
+    page: cover;
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    page-break-after: always;
+}
+
+.cover-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 80%;
+    z-index: 1;
+    color: white;
+}
+
+.cover-icon {
+    font-size: 72pt;
+    margin-bottom: 30px;
+}
+
+.cover-title {
+    font-size: 32pt;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.cover-subtitle {
+    font-size: 16pt;
+    margin-bottom: 60px;
+    opacity: 0.9;
+}
+
+.cover-meta {
+    font-size: 12pt;
+    line-height: 2;
+    opacity: 0.85;
+}
+
+.cover-version {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10pt;
+    opacity: 0.7;
+    color: white;
+}

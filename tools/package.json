@@ -1,0 +1,22 @@
+{
+  "name": "openclaw-guide-pdf-generator",
+  "version": "1.0.0",
+  "description": "PDF生成工具 - 中文排版优化版",
+  "main": "generate-pdf-final.js",
+  "scripts": {
+    "pdf": "node generate-pdf-final.js",
+    "install-browser": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "katex": "^0.16.33",
+    "marked": "^12.0.0",
+    "playwright": "^1.42.0"
+  },
+  "keywords": [
+    "pdf",
+    "openclaw",
+    "chinese",
+    "typography"
+  ],
+  "license": "MIT"
+}

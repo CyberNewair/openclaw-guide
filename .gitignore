@@ -1,0 +1,21 @@
+# 生成的文件
+output/
+*.pdf
+*.html
+
+# 依赖
+node_modules/
+package-lock.json
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 日志
+*.log
